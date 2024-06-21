@@ -23,7 +23,7 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.PORT }}
           source: "deploy.tar"
           target: "/home/ec2-user/project"
