@@ -1,0 +1,37 @@
+name: Deploy to EC2
+'on':
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: '${{ secrets.EC2_SSH_KEY }}'
+      - name: Change permissions for the SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > rust-project.pem
+          chmod 400 rust-project.pem
+      - name: Copy files to EC2
+        run: >
+          scp -o StrictHostKeyChecking=no -i rust-project.pem -r .
+          ec2-user@35.173.183.188:/home/ec2-user/project
+      - name: SSH and deploy
+        run: >
+          ssh -o StrictHostKeyChecking=no -i rust-project.pem
+          ec2-user@35.173.183.188 << 'EOF'
+            # Start Docker service
+            sudo service docker start
+
+            # Navigate to the project directory
+            cd /home/ec2-user/project
+
+            # Stop any existing containers and start the new ones with the latest code
+            sudo docker-compose down
+            sudo docker-compose up --build -d
+          EOF
