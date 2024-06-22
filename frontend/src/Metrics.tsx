@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
+const BACKEND_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://backend:8080';
+
 const Metrics: React.FC = () => {
   const [mempoolSize, setMempoolSize] = useState<number[]>([]);
   const [blockHeight, setBlockHeight] = useState<number[]>([]);
@@ -15,11 +17,11 @@ const Metrics: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const mempoolSizeResponse = await axios.get('http://0.0.0.0:8080/metrics/mempool_size');
-        const blockHeightResponse = await axios.get('http://0.0.0.0:8080/metrics/block_height');
-        const totalBitcoinResponse = await axios.get('http://0.0.0.0:8080/metrics/total_circulating_bitcoin');
-        const marketPriceResponse = await axios.get('http://0.0.0.0:8080/metrics/market_price');
-        const averageBlockSizeResponse = await axios.get('http://0.0.0.0:8080/metrics/average_block_size');
+        const mempoolSizeResponse = await axios.get(`${BACKEND_BASE_URL}/metrics/mempool_size`);
+        const blockHeightResponse = await axios.get(`${BACKEND_BASE_URL}/metrics/block_height`);
+        const totalBitcoinResponse = await axios.get(`${BACKEND_BASE_URL}/metrics/total_circulating_bitcoin`);
+        const marketPriceResponse = await axios.get(`${BACKEND_BASE_URL}/metrics/market_price`);
+        const averageBlockSizeResponse = await axios.get(`${BACKEND_BASE_URL}/metrics/average_block_size`);
 
         const timestamp = new Date().toLocaleTimeString();
 
