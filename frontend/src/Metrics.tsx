@@ -1,31 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Line } from 'react-chartjs-2';
+import 'chart.js/auto';
 
 const Metrics: React.FC = () => {
-  const [mempoolSize, setMempoolSize] = useState<string | null>(null);
-  const [blockHeight, setBlockHeight] = useState<string | null>(null);
-  const [totalBitcoin, setTotalBitcoin] = useState<string | null>(null);
-  const [marketPrice, setMarketPrice] = useState<string | null>(null);
-  const [averageBlockSize, setAverageBlockSize] = useState<string | null>(null);
+  const [mempoolSize, setMempoolSize] = useState<number[]>([]);
+  const [blockHeight, setBlockHeight] = useState<number[]>([]);
+  const [totalBitcoin, setTotalBitcoin] = useState<number[]>([]);
+  const [marketPrice, setMarketPrice] = useState<number[]>([]);
+  const [averageBlockSize, setAverageBlockSize] = useState<number[]>([]);
+  const [timestamps, setTimestamps] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const mempoolSizeResponse = await axios.get('http://backend:8080/metrics/mempool_size');
-        setMempoolSize(mempoolSizeResponse.data);
+        const mempoolSizeResponse = await axios.get('http://127.0.0.1:8080/metrics/mempool_size');
+        const blockHeightResponse = await axios.get('http://localhost:8080/metrics/block_height');
+        const totalBitcoinResponse = await axios.get('http://localhost:8080/metrics/total_circulating_bitcoin');
+        const marketPriceResponse = await axios.get('http://localhost:8080/metrics/market_price');
+        const averageBlockSizeResponse = await axios.get('http://localhost:8080/metrics/average_block_size');
 
-        const blockHeightResponse = await axios.get('http://backend:8080/metrics/block_height');
-        setBlockHeight(blockHeightResponse.data);
+        const timestamp = new Date().toLocaleTimeString();
 
-        const totalBitcoinResponse = await axios.get('http://backend:8080/metrics/total_circulating_bitcoin');
-        setTotalBitcoin(totalBitcoinResponse.data);
-
-        const marketPriceResponse = await axios.get('http://backend:8080/metrics/market_price');
-        setMarketPrice(marketPriceResponse.data);
-
-        const averageBlockSizeResponse = await axios.get('http://backend:8080/metrics/average_block_size');
-        setAverageBlockSize(averageBlockSizeResponse.data);
+        setMempoolSize((prev) => [...prev, parseFloat(mempoolSizeResponse.data)]);
+        setBlockHeight((prev) => [...prev, parseFloat(blockHeightResponse.data)]);
+        setTotalBitcoin((prev) => [...prev, parseFloat(totalBitcoinResponse.data)]);
+        setMarketPrice((prev) => [...prev, parseFloat(marketPriceResponse.data)]);
+        setAverageBlockSize((prev) => [...prev, parseFloat(averageBlockSizeResponse.data)]);
+        setTimestamps((prev) => [...prev, timestamp]);
       } catch (error) {
         setError('Error fetching metrics');
       }
@@ -40,20 +43,33 @@ const Metrics: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const generateChartData = (label: string, data: number[]) => ({
+    labels: timestamps,
+    datasets: [
+      {
+        label,
+        data,
+        fill: false,
+        borderColor: 'rgba(75,192,192,1)',
+        tension: 0.1,
+      },
+    ],
+  });
+
   return (
     <div>
       <h1>Bitcoin Metrics</h1>
       {error && <p>{error}</p>}
       <div>
         <h2>On-chain Metrics</h2>
-        <p><strong>Mempool Size:</strong> {mempoolSize || 'Loading...'}</p>
-        <p><strong>Block Height:</strong> {blockHeight || 'Loading...'}</p>
-        <p><strong>Total Circulating Bitcoin:</strong> {totalBitcoin || 'Loading...'}</p>
+        <Line data={generateChartData('Mempool Size', mempoolSize)} />
+        <Line data={generateChartData('Block Height', blockHeight)} />
+        <Line data={generateChartData('Total Circulating Bitcoin', totalBitcoin)} />
       </div>
       <div>
         <h2>Off-chain Metrics</h2>
-        <p><strong>Market Price:</strong> {marketPrice || 'Loading...'}</p>
-        <p><strong>Average Block Size:</strong> {averageBlockSize || 'Loading...'}</p>
+        <Line data={generateChartData('Market Price', marketPrice)} />
+        <Line data={generateChartData('Average Block Size', averageBlockSize)} />
       </div>
     </div>
   );
