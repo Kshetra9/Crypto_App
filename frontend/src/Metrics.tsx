@@ -15,11 +15,11 @@ const Metrics: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const mempoolSizeResponse = await axios.get('http://127.0.0.1:8080/metrics/mempool_size');
-        const blockHeightResponse = await axios.get('http://localhost:8080/metrics/block_height');
-        const totalBitcoinResponse = await axios.get('http://localhost:8080/metrics/total_circulating_bitcoin');
-        const marketPriceResponse = await axios.get('http://localhost:8080/metrics/market_price');
-        const averageBlockSizeResponse = await axios.get('http://localhost:8080/metrics/average_block_size');
+        const mempoolSizeResponse = await axios.get('http://0.0.0.0:8080/metrics/mempool_size');
+        const blockHeightResponse = await axios.get('http://0.0.0.0:8080/metrics/block_height');
+        const totalBitcoinResponse = await axios.get('http://0.0.0.0:8080/metrics/total_circulating_bitcoin');
+        const marketPriceResponse = await axios.get('http://0.0.0.0:8080/metrics/market_price');
+        const averageBlockSizeResponse = await axios.get('http://0.0.0.0:8080/metrics/average_block_size');
 
         const timestamp = new Date().toLocaleTimeString();
 
