@@ -18,7 +18,7 @@ jobs:
           cp -TR . ../build
           tar -cvf deploy.tar ../build/
 
-      - name: copy file via ssh password
+      - name: Copy file via SSH
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -27,3 +27,29 @@ jobs:
           port: ${{ secrets.PORT }}
           source: "deploy.tar"
           target: "/home/ec2-user/project"
+
+      - name: SSH to EC2 and untar files
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /home/ec2-user/project
+            tar -xvf deploy.tar
+            rm deploy.tar  # Optionally remove the tar file after extraction
+
+      - name: SSH to EC2 and start Docker services
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /home/ec2-user/project/build
+            sudo service docker start  # Start Docker if not already started
+            docker-compose down  # Stop any existing containers
+            docker-compose up --build -d  # Start containers with build
+
