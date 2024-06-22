@@ -26,7 +26,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.PORT }}
           source: "deploy.tar"
-          target: "/home/ec2-user/project"
+          target: "/home/ec2-user"
 
       - name: SSH to EC2 and untar files
         uses: appleboy/ssh-action@master
@@ -36,7 +36,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd /home/ec2-user/project
+            cd /home/ec2-user
             tar -xvf deploy.tar
             rm deploy.tar  # Optionally remove the tar file after extraction
 
@@ -48,7 +48,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.PORT }}
           script: |
-            cd /home/ec2-user/project/build
+            cd /home/ec2-user/build
             sudo service docker start  # Start Docker if not already started
             docker-compose down  # Stop any existing containers
             docker-compose up --build -d  # Start containers with build
