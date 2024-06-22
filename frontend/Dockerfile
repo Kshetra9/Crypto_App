@@ -10,7 +10,7 @@ COPY package*.json ./
 # Install the dependencies
 RUN npm install
 
-ENV REACT_APP_BACKEND_URL=http://3.92.85.136:8080
+ENV REACT_APP_BACKEND_URL=http://3.218.241.47:8080
 
 # Copy the rest of the application code
 COPY . .
